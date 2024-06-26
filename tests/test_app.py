@@ -63,8 +63,8 @@ def test_update_not_found_user(client):
             'username': 'bob',
             'email': 'bob@example.com',
             'password': 'mynewpassword',
-        }
-        )
+        },
+    )
     assert response.status_code == HTTPStatus.NOT_FOUND
 
 
