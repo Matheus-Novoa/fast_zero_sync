@@ -81,16 +81,17 @@ def test_update_user(client, user, token):
     }
 
 
-def test_update_not_found_user(client):
+def test_update_not_found_user(client, user, token):
     response = client.put(
         '/users/-5',
+        headers={'Authorization': f'Bearer {token}'},
         json={
             'username': 'bob',
             'email': 'bob@example.com',
             'password': 'mynewpassword',
         },
     )
-    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.status_code == HTTPStatus.BAD_REQUEST
 
 
 def test_delete_user(client, user, token):
@@ -102,9 +103,11 @@ def test_delete_user(client, user, token):
     assert response.json() == {'message': 'User deleted'}
 
 
-def test_delete_not_found_user(client):
-    response = client.delete('/users/-5')
-    assert response.status_code == HTTPStatus.NOT_FOUND
+def test_delete_not_found_user(client, user, token):
+    response = client.delete(
+        '/users/-5', headers={'Authorization': f'Bearer {token}'}
+    )
+    assert response.status_code == HTTPStatus.BAD_REQUEST
 
 
 def test_get_token(client, user):
@@ -117,3 +120,19 @@ def test_get_token(client, user):
     assert response.status_code == HTTPStatus.OK
     assert 'access_token' in token
     assert 'token_type' in token
+
+
+def test_get_token_incorrect_user(client, user):
+    response = client.post(
+        '/token',
+        data={'username': 'ma@theus.com', 'password': user.clean_password},
+    )
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+
+
+def test_get_token_incorrect_password(client, user):
+    response = client.post(
+        '/token',
+        data={'username': user.email, 'password': 'batata'},
+    )
+    assert response.status_code == HTTPStatus.BAD_REQUEST
