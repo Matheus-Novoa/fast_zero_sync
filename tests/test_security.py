@@ -25,7 +25,7 @@ def test_jwt_invalid_token(client):
 
 
 def test_user_credentials_exception(user, client):
-    token = create_access_token(data={'sub': "wrong_email@mail.com"})
+    token = create_access_token(data={'sub': 'wrong_email@mail.com'})
     response = client.delete(
         f'/users/{user.id}',
         headers={'Authorization': f'Bearer {token}'},
