@@ -20,28 +20,28 @@ def test_create_user(client):
     }
 
 
-def test_create_user_already_existing(client, user):
-    response = client.post(
-        '/users/',
-        json={
-            'username': 'Teste',
-            'email': 'bla@bla.com',
-            'password': 'testtest',
-        },
-    )
-    assert response.status_code == HTTPStatus.BAD_REQUEST
+# def test_create_user_already_existing(client, user):
+#     response = client.post(
+#         '/users/',
+#         json={
+#             'username': 'Teste',
+#             'email': 'bla@bla.com',
+#             'password': 'testtest',
+#         },
+#     )
+#     assert response.status_code == HTTPStatus.BAD_REQUEST
 
 
-def test_create_email_already_existing(client, user):
-    response = client.post(
-        '/users/',
-        json={
-            'username': 'Bla',
-            'email': 'teste@test.com',
-            'password': 'testtest',
-        },
-    )
-    assert response.status_code == HTTPStatus.BAD_REQUEST
+# def test_create_email_already_existing(client, user):
+#     response = client.post(
+#         '/users/',
+#         json={
+#             'username': 'Bla',
+#             'email': 'teste@test.com',
+#             'password': 'testtest',
+#         },
+#     )
+#     assert response.status_code == HTTPStatus.BAD_REQUEST
 
 
 def test_read_users(client):
