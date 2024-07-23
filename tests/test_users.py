@@ -1,3 +1,4 @@
+from datetime import UTC, datetime
 from http import HTTPStatus
 
 from fast_zero.schemas import UserPublic
@@ -17,6 +18,8 @@ def test_create_user(client):
         'username': 'alice',
         'email': 'alice@example.com',
         'id': 1,
+        'created_at': datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%S'),
+        'updated_at': None
     }
 
 
@@ -53,6 +56,9 @@ def test_read_users(client):
 def test_read_users_with_users(client, user):
     user_schema = UserPublic.model_validate(user).model_dump()
     response = client.get('/users/')
+    user_schema['created_at'] = datetime.strftime(
+        user_schema['created_at'], '%Y-%m-%dT%H:%M:%S'
+    )
     assert response.json() == {'users': [user_schema]}
 
 
@@ -71,6 +77,8 @@ def test_update_user(client, user, token):
         'username': 'bob',
         'email': 'bob@example.com',
         'id': user.id,
+        'created_at': datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%S'),
+        'updated_at': None
     }
 
 
