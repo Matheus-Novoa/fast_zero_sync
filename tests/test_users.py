@@ -19,7 +19,7 @@ def test_create_user(client):
         'email': 'alice@example.com',
         'id': 1,
         'created_at': datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%S'),
-        'updated_at': None
+        'update_at': datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%S')
     }
 
 
@@ -59,6 +59,9 @@ def test_read_users_with_users(client, user):
     user_schema['created_at'] = datetime.strftime(
         user_schema['created_at'], '%Y-%m-%dT%H:%M:%S'
     )
+    user_schema['update_at'] = datetime.strftime(
+        user_schema['update_at'], '%Y-%m-%dT%H:%M:%S'
+    )
     assert response.json() == {'users': [user_schema]}
 
 
@@ -78,7 +81,7 @@ def test_update_user(client, user, token):
         'email': 'bob@example.com',
         'id': user.id,
         'created_at': datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%S'),
-        'updated_at': None
+        'update_at': datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%S')
     }
 
 

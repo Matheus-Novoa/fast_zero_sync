@@ -22,7 +22,7 @@ def test_create_todo(client, token):
         'description': 'Test todo description',
         'state': 'draft',
         'created_at': datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%S'),
-        'updated_at': None,
+        'update_at': datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%S'),
     }
 
 
