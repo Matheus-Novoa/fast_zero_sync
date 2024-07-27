@@ -1,3 +1,4 @@
+from datetime import UTC, datetime
 from http import HTTPStatus
 
 import factory.fuzzy
@@ -20,6 +21,8 @@ def test_create_todo(client, token):
         'title': 'Test todo',
         'description': 'Test todo description',
         'state': 'draft',
+        'created_at': datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%S'),
+        'update_at': datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%S'),
     }
 
 

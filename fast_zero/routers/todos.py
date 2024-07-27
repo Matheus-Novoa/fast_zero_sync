@@ -18,7 +18,7 @@ from fast_zero.security import get_current_user
 
 router = APIRouter()
 
-Session = Annotated[Session, Depends(get_session)]
+T_Session = Annotated[Session, Depends(get_session)]
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
 router = APIRouter(prefix='/todos', tags=['todos'])
@@ -28,7 +28,7 @@ router = APIRouter(prefix='/todos', tags=['todos'])
 def create_todo(
     todo: TodoSchema,
     user: CurrentUser,
-    session: Session,
+    session: T_Session,
 ):
     db_todo = Todo(
         title=todo.title,
@@ -45,7 +45,7 @@ def create_todo(
 
 @router.get('/', response_model=TodoList)
 def list_todos(  # noqa
-    session: Session,
+    session: T_Session,
     user: CurrentUser,
     title: str = Query(None),
     description: str = Query(None),
@@ -70,7 +70,7 @@ def list_todos(  # noqa
 
 
 @router.delete('/{todo_id}', response_model=Message)
-def delete_todo(todo_id: int, session: Session, user: CurrentUser):
+def delete_todo(todo_id: int, session: T_Session, user: CurrentUser):
     todo = session.scalar(
         select(Todo).where(Todo.user_id == user.id, Todo.id == todo_id)
     )
@@ -88,7 +88,7 @@ def delete_todo(todo_id: int, session: Session, user: CurrentUser):
 
 @router.patch('/{todo_id}', response_model=TodoPublic)
 def patch_todo(
-    todo_id: int, session: Session, user: CurrentUser, todo: TodoUpdate
+    todo_id: int, session: T_Session, user: CurrentUser, todo: TodoUpdate
 ):
     db_todo = session.scalar(
         select(Todo).where(Todo.user_id == user.id, Todo.id == todo_id)
