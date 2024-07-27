@@ -21,7 +21,7 @@ class UserPublic(BaseModel):
     email: EmailStr
     model_config = ConfigDict(from_attributes=True)
     created_at: datetime
-    updated_at: datetime | None = None
+    updated_at: datetime | None
 
 
 class UserList(BaseModel):
@@ -46,7 +46,7 @@ class TodoSchema(BaseModel):
 class TodoPublic(TodoSchema):
     id: int
     created_at: datetime
-    updated_at: datetime | None = None
+    updated_at: datetime | None
 
 
 class TodoList(BaseModel):
