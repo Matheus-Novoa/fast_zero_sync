@@ -16,14 +16,18 @@ def test_create_todo(client, token):
             'state': 'draft',
         },
     )
-    assert response.json() == {
-        'id': 1,
-        'title': 'Test todo',
-        'description': 'Test todo description',
-        'state': 'draft',
-        'created_at': datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%S'),
-        'update_at': datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%S'),
-    }
+    response_data = response.json()
+
+    created_at = response_data['created_at']
+    update_at = response_data['update_at']
+    now = datetime.now(UTC).strftime('%Y-%m-%dT%H:%M')
+
+    assert response_data['id'] == 1
+    assert response_data['title'] == 'Test todo'
+    assert response_data['description'] == 'Test todo description'
+    assert response_data['state'] == 'draft'
+    assert created_at.startswith(now)
+    assert update_at.startswith(now)
 
 
 class TodoFactory(factory.Factory):

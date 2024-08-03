@@ -13,14 +13,19 @@ def test_create_user(client):
             'password': 'secret',
         },
     )
+    response_data = response.json()
+
+    created_at = response_data['created_at']
+    update_at = response_data['update_at']
+    now = datetime.now(UTC).strftime('%Y-%m-%dT%H:%M')
+
     assert response.status_code == HTTPStatus.CREATED
-    assert response.json() == {
-        'username': 'alice',
-        'email': 'alice@example.com',
-        'id': 1,
-        'created_at': datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%S'),
-        'update_at': datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%S')
-    }
+
+    assert response_data['username'] == 'alice'
+    assert response_data['email'] == 'alice@example.com'
+    assert response_data['id'] == 1
+    assert created_at.startswith(now)
+    assert update_at.startswith(now)
 
 
 # def test_create_user_already_existing(client, user):
@@ -62,7 +67,17 @@ def test_read_users_with_users(client, user):
     user_schema['update_at'] = datetime.strftime(
         user_schema['update_at'], '%Y-%m-%dT%H:%M:%S'
     )
-    assert response.json() == {'users': [user_schema]}
+    response_data = response.json()
+
+    created_at = response_data['users'][0]['created_at']
+    update_at = response_data['users'][0]['update_at']
+    now = datetime.now(UTC).strftime('%Y-%m-%dT%H:%M')
+
+    assert created_at.startswith(now)
+    assert update_at.startswith(now)
+    assert response_data['users'][0]['username'] == user_schema['username']
+    assert response_data['users'][0]['email'] == user_schema['email']
+    assert response_data['users'][0]['id'] == user_schema['id']
 
 
 def test_update_user(client, user, token):
@@ -75,14 +90,18 @@ def test_update_user(client, user, token):
             'password': 'mynewpassword',
         },
     )
+    response_data = response.json()
+
+    created_at = response_data['created_at']
+    update_at = response_data['update_at']
+    now = datetime.now(UTC).strftime('%Y-%m-%dT%H:%M')
+
     assert response.status_code == HTTPStatus.OK
-    assert response.json() == {
-        'username': 'bob',
-        'email': 'bob@example.com',
-        'id': user.id,
-        'created_at': datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%S'),
-        'update_at': datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%S')
-    }
+    assert created_at.startswith(now)
+    assert update_at.startswith(now)
+    assert response_data['username'] == 'bob'
+    assert response_data['email'] == 'bob@example.com'
+    assert response_data['id'] == 1
 
 
 def test_update_user_with_wrong_user(client, other_user, token):

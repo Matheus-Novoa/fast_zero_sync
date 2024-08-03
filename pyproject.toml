@@ -25,6 +25,7 @@ ruff = "^0.4.9"
 httpx = "^0.27.0"
 factory-boy = "^3.3.0"
 freezegun = "^1.5.1"
+testcontainers = "^4.7.2"
 
 [tool.ruff]
 line-length = 79
@@ -47,7 +48,7 @@ lint = 'ruff check . && ruff check . --diff'
 format = 'ruff check . --fix && ruff format .'
 run = 'fastapi dev fast_zero/app.py'
 pre_test = 'task lint'
-test = 'pytest -s -x --cov=fast_zero -vv'
+test = 'pytest -s --cov=fast_zero -vv'
 post_test = 'coverage html'
 
 [build-system]
