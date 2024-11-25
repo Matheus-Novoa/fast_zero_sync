@@ -1,3 +1,6 @@
+from contextlib import contextmanager
+from datetime import datetime
+
 import factory
 import pytest
 from fastapi.testclient import TestClient
@@ -9,8 +12,7 @@ from fast_zero.app import app
 from fast_zero.database import get_session
 from fast_zero.models import User, table_registry
 from fast_zero.security import get_password_hash
-from contextlib import contextmanager
-from datetime import datetime
+from fast_zero.settings import Settings
 
 
 class UserFactory(factory.Factory):
@@ -45,6 +47,7 @@ def engine():
 
 @pytest.fixture()
 def session(engine):
+    engine = create_engine(Settings().DATABASE_URL)
     table_registry.metadata.create_all(engine)
 
     with Session(engine) as session:
@@ -98,11 +101,12 @@ def _mock_db_time(*, model, time=datetime(2024, 1, 1)):
             target.created_at = time
         if hasattr(target, 'update_at'):
             target.update_at = time
+
     event.listen(model, 'before_insert', fake_time_handler)
     yield time
     event.remove(model, 'before_insert', fake_time_handler)
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_db_time():
     return _mock_db_time

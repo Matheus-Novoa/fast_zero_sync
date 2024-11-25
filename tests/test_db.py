@@ -1,12 +1,15 @@
+from dataclasses import asdict
+
 from sqlalchemy import select
 
 from fast_zero.models import User
-from dataclasses import asdict
 
 
 def test_create_user(session, mock_db_time):
     with mock_db_time(model=User) as time:
-        new_user = User(username='alice', password='secret', email='teste@test')
+        new_user = User(
+            username='alice', password='secret', email='teste@test'
+        )
         session.add(new_user)
         session.commit()
 
@@ -16,6 +19,7 @@ def test_create_user(session, mock_db_time):
         'id': 1,
         'username': 'alice',
         'password': 'secret',
-        'email': 'test@test',
+        'email': 'teste@test',
         'created_at': time,
+        'update_at': time,
     }

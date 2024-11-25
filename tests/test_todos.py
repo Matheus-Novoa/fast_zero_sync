@@ -1,4 +1,3 @@
-from datetime import UTC, datetime
 from http import HTTPStatus
 
 import factory.fuzzy
@@ -6,28 +5,25 @@ import factory.fuzzy
 from fast_zero.models import Todo, TodoState
 
 
-def test_create_todo(client, token):
-    response = client.post(
-        '/todos/',
-        headers={'Authorization': f'Bearer {token}'},
-        json={
-            'title': 'Test todo',
-            'description': 'Test todo description',
-            'state': 'draft',
-        },
-    )
-    response_data = response.json()
-
-    created_at = response_data['created_at']
-    update_at = response_data['update_at']
-    now = datetime.now(UTC).strftime('%Y-%m-%dT%H:%M')
-
-    assert response_data['id'] == 1
-    assert response_data['title'] == 'Test todo'
-    assert response_data['description'] == 'Test todo description'
-    assert response_data['state'] == 'draft'
-    assert created_at.startswith(now)
-    assert update_at.startswith(now)
+def test_create_todo(client, token, mock_db_time):
+    with mock_db_time(model=Todo) as time:
+        response = client.post(
+            '/todos/',
+            headers={'Authorization': f'Bearer {token}'},
+            json={
+                'title': 'Test todo',
+                'description': 'Test todo description',
+                'state': 'draft',
+            },
+        )
+    assert response.json() == {
+        'id': 1,
+        'title': 'Test todo',
+        'description': 'Test todo description',
+        'state': 'draft',
+        'created_at': time.isoformat(),
+        'updated_at': time.isoformat(),
+    }
 
 
 class TodoFactory(factory.Factory):
@@ -150,6 +146,32 @@ def test_list_todos_filter_combined_should_return_5_todos(
     )
 
     assert len(response.json()['todos']) == expected_todos
+
+
+def test_list_todos_should_return_all_expected_fields__exercicio(
+    session, client, user, token, mock_db_time
+):
+    with mock_db_time(model=Todo) as time:
+        todo = TodoFactory.create(user_id=user.id)
+        session.add(todo)
+        session.commit()
+
+    session.refresh(todo)
+    response = client.get(
+        '/todos/',
+        headers={'Authorization': f'Bearer {token}'},
+    )
+
+    assert response.json()['todos'] == [
+        {
+            'created_at': time.isoformat(),
+            'updated_at': time.isoformat(),
+            'description': todo.description,
+            'id': todo.id,
+            'state': todo.state,
+            'title': todo.title,
+        }
+    ]
 
 
 def test_delete_todo(session, client, user, token):

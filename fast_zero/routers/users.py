@@ -54,6 +54,20 @@ def read_users(session: T_Session, skip: int = 0, limit: int = 10):
     return {'users': user}
 
 
+@router.get('/users/{user_id}', response_model=UserPublic)
+def read_user__exercicio(
+    user_id: int, session: Session = Depends(get_session)
+):
+    db_user = session.scalar(select(User).where(User.id == user_id))
+
+    if not db_user:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail='User not found'
+        )
+
+    return db_user
+
+
 @router.put('/{user_id}', response_model=UserPublic)
 def update_user(
     user_id: int,
