@@ -1,7 +1,6 @@
 from contextlib import contextmanager
 from datetime import datetime
 
-import factory
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, event
@@ -10,18 +9,10 @@ from testcontainers.postgres import PostgresContainer
 
 from fast_zero.app import app
 from fast_zero.database import get_session
-from fast_zero.models import User, table_registry
+from fast_zero.models import table_registry
 from fast_zero.security import get_password_hash
 from fast_zero.settings import Settings
-
-
-class UserFactory(factory.Factory):
-    class Meta:
-        model = User
-
-    username = factory.Sequence(lambda n: f'test{n}')
-    email = factory.LazyAttribute(lambda obj: f'{obj.username}@test.com')
-    password = factory.LazyAttribute(lambda obj: f'{obj.username}@example.com')
+from tests.factories import UserFactory
 
 
 @pytest.fixture()

@@ -1,8 +1,7 @@
 from http import HTTPStatus
 
-import factory.fuzzy
-
 from fast_zero.models import Todo, TodoState
+from tests.factories import TodoFactory
 
 
 def test_create_todo(client, token, mock_db_time):
@@ -22,18 +21,8 @@ def test_create_todo(client, token, mock_db_time):
         'description': 'Test todo description',
         'state': 'draft',
         'created_at': time.isoformat(),
-        'updated_at': time.isoformat(),
+        'update_at': time.isoformat(),
     }
-
-
-class TodoFactory(factory.Factory):
-    class Meta:
-        model = Todo
-
-    title = factory.Faker('text')
-    description = factory.Faker('text')
-    state = factory.fuzzy.FuzzyChoice(TodoState)
-    user_id = 1
 
 
 def test_list_todos_should_return_5_todos(session, client, user, token):
@@ -165,7 +154,7 @@ def test_list_todos_should_return_all_expected_fields__exercicio(
     assert response.json()['todos'] == [
         {
             'created_at': time.isoformat(),
-            'updated_at': time.isoformat(),
+            'update_at': time.isoformat(),
             'description': todo.description,
             'id': todo.id,
             'state': todo.state,
