@@ -1,13 +1,20 @@
 from http import HTTPStatus
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from fast_zero.database import get_session
 from fast_zero.models import User
-from fast_zero.schemas import Message, UserList, UserPublic, UserSchema
+from fast_zero.schemas import (
+    FilterPage,
+    Message,
+    UserList,
+    UserPublic,
+    UserSchema,
+)
 from fast_zero.security import get_current_user, get_password_hash
 
 T_Session = Annotated[Session, Depends(get_session)]
@@ -49,12 +56,17 @@ def create_user(user: UserSchema, session: T_Session):
 
 
 @router.get('/', response_model=UserList)
-def read_users(session: T_Session, skip: int = 0, limit: int = 10):
-    user = session.scalars(select(User).limit(limit).offset(skip))
-    return {'users': user}
+def read_users(
+    session: T_Session, filter_users: Annotated[FilterPage, Query()]
+):
+    users = session.scalars(
+        select(User).offset(filter_users.offset).limit(filter_users.limit)
+    ).all()
+
+    return {'users': users}
 
 
-@router.get('/users/{user_id}', response_model=UserPublic)
+@router.get('/{user_id}', response_model=UserPublic)
 def read_user__exercicio(
     user_id: int, session: Session = Depends(get_session)
 ):
@@ -80,13 +92,19 @@ def update_user(
             status_code=HTTPStatus.FORBIDDEN, detail='Not enough permissions'
         )
 
-    current_user.username = user.username
-    current_user.password = get_password_hash(user.password)
-    current_user.email = user.email
-    session.commit()
-    session.refresh(current_user)
+    try:
+        current_user.username = user.username
+        current_user.password = get_password_hash(user.password)
+        current_user.email = user.email
+        session.commit()
+        session.refresh(current_user)
 
-    return current_user
+        return current_user
+    except IntegrityError:
+        raise HTTPException(
+            status_code=HTTPStatus.CONFLICT,
+            detail='Username or Email already exists'
+        )
 
 
 @router.delete('/{user_id}', response_model=Message)

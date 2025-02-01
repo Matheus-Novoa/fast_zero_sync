@@ -17,8 +17,6 @@ from fast_zero.schemas import (
 )
 from fast_zero.security import get_current_user
 
-router = APIRouter()
-
 T_Session = Annotated[Session, Depends(get_session)]
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
@@ -46,7 +44,7 @@ def create_todo(
 
 @router.get('/', response_model=TodoList)
 def list_todos(  # noqa
-    session: Session,
+    session: T_Session,
     user: CurrentUser,
     todo_filter: Annotated[FilterTodo, Query()],
 ):

@@ -20,8 +20,8 @@ class UserPublic(BaseModel):
     username: str
     email: EmailStr
     model_config = ConfigDict(from_attributes=True)
-    created_at: datetime
-    update_at: datetime | None
+    # created_at: datetime
+    # update_at: datetime | None
 
 
 class UserList(BaseModel):
